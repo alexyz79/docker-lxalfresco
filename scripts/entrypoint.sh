@@ -10,8 +10,8 @@ export CATALINA_TMPDIR=/opt/alfresco/tomcat/temp
 
 ALFRESCO_GLOBAL_PROPERTIES_TEMPLATE=$CATALINA_HOME/shared/classes/alfresco-global-template.properties
 ALFRESCO_GLOBAL_PROPERTIES=$CATALINA_HOME/shared/classes/alfresco-global.properties
-SHARE_CONFIG_CUSTOM_TEMPLATE=$CATALINA_HOME/shared/classes/alfresco/web-extension/tomcat/share-config-custom-template.xml
-SHARE_CONFIG_CUSTOM=$CATALINA_HOME/shared/classes/alfresco/web-extension/tomcat/share-config-custom.xml
+SHARE_CONFIG_CUSTOM_TEMPLATE=$CATALINA_HOME/shared/classes/alfresco/web-extension/share-config-custom-template.xml
+SHARE_CONFIG_CUSTOM=$CATALINA_HOME/shared/classes/alfresco/web-extension/share-config-custom.xml
 
 cp $ALFRESCO_GLOBAL_PROPERTIES_TEMPLATE $ALFRESCO_GLOBAL_PROPERTIES
 cp $SHARE_CONFIG_CUSTOM_TEMPLATE $SHARE_CONFIG_CUSTOM
@@ -264,27 +264,27 @@ if [ "$GENERATE_AUTH_SYSTEM" = "true" ]; then
         fi
         
         if [[ ! -v LDAP_GROUP_QUERY ]]; then
-            LDAP_GROUP_QUERY='(objectClass\\=group)'
+            LDAP_GROUP_QUERY='(objectClass\=group)'
         fi
         
         if [[ ! -v LDAP_GROUP_DIFFERENTIAL_QUERY ]]; then
-            LDAP_GROUP_DIFFERENTIAL_QUERY='(&(objectClass\\=group)(!(whenChanged<\\={0})))'
+            LDAP_GROUP_DIFFERENTIAL_QUERY='(&(objectClass\=group)(!(whenChanged<\={0})))'
         fi
         
         if [[ ! -v LDAP_PERSON_QUERY ]]; then
-            LDAP_PERSON_QUERY='(&(objectClass\\=user)(objectClass\\=person))'
+            LDAP_PERSON_QUERY='(&(objectClass\=user)(objectClass\=person))'
         fi
         
         if [[ ! -v LDAP_PERSON_DIFERNTIAL_QUERY ]]; then
-            LDAP_PERSON_DIFERNTIAL_QUERY='(&(objectClass\\=user)(objectClass\\=person)(!(whenChanged<\\={0})))'
+            LDAP_PERSON_DIFERNTIAL_QUERY='(&(objectClass\=user)(objectClass\=person)(!(whenChanged<\={0})))'
         fi
         
         if [[ ! -v LDAP_GROUP_SEARCHBASE ]]; then
-            LDAP_GROUP_SEARCHBASE='DC\\=DOMAIN,DC\\=TLD'
+            LDAP_GROUP_SEARCHBASE='DC\=DOMAIN,DC\=TLD'
         fi
         
         if [[ ! -v LDAP_USER_SEARCHBASE ]]; then
-            LDAP_USER_SEARCHBASE='DC\\=DOMAIN,DC\\=TLD'
+            LDAP_USER_SEARCHBASE='DC\=DOMAIN,DC\=TLD'
         fi
         
         if [[ ! -v LDAP_MODIFYTS_NAME ]]; then
@@ -300,7 +300,7 @@ if [ "$GENERATE_AUTH_SYSTEM" = "true" ]; then
         fi
         
         if [[ ! -v LDAP_USER_FN_ATTRIB ]]; then
-            LDAP_USER_FN_ATTRIB='firstName'
+            LDAP_USER_FN_ATTRIB='givenName'
         fi
         
         if [[ ! -v LDAP_USER_LN_ATTRIB ]]; then
@@ -418,8 +418,9 @@ sed -i "s/@@FTP_PORT@@/$FTP_PORT/g" $ALFRESCO_GLOBAL_PROPERTIES
 sed -i "s/@@FTP_BIND@@/$FTP_BIND/g" $ALFRESCO_GLOBAL_PROPERTIES
 sed -i "s/@@FTP_DATAFROM@@/$FTP_DATAFROM/g" $ALFRESCO_GLOBAL_PROPERTIES
 sed -i "s/@@FTP_DATATO@@/$FTP_DATATO/g" $ALFRESCO_GLOBAL_PROPERTIES
+
 sed -i "s/@@ALFRESCO_SHARE_SERVER@@/$SHARE_HOSTNAME/g" $SHARE_CONFIG_CUSTOM
-sed -i "s/@@SHARE_TO_REPO_SERVER@@/$SHARE_TO_REPO_HOSTNAME/g" $SHARE_CONFIG_CUSTOM
+sed -i "s/@@SHARE_TO_REPO_SERVER@@/$SHARE_HOSTNAME/g" $SHARE_CONFIG_CUSTOM
 
 # Change to directory, this is where alfresco default log files will go
 if [ ! -d "$ALF_HOME/logs" ]; then

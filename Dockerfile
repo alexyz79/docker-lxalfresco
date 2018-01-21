@@ -42,7 +42,7 @@ RUN apt-get update && \
     apt-get install -y unzip curl wget fonts-noto \
                    fontconfig libcups2 libfontconfig1 libglu1-mesa \
                    libice6 libsm6 libxinerama1 libxrender1 libxt6 \
-                   imagemagick ghostscript libgs-dev libjpeg62 libpng3 \
+                   imagemagick ghostscript libjpeg62 libpng3 \
                    mysql-client xfonts-utils cabextract && \ 
     ln -s /etc/ImageMagick-6 /etc/ImageMagick && \
     rm -rf /var/lib/apt/lists/*
@@ -160,7 +160,7 @@ ADD tomcat/share.xml /opt/alfresco/tomcat/conf/Catalina/localhost/share.xml
 
 # Deploy scripts & fix permissions
 ADD tomcat/alfresco-global.properties /opt/alfresco/tomcat/shared/classes/alfresco-global-template.properties
-ADD tomcat/share-config-custom.xml /opt/alfresco/tomcat/shared/classes/alfresco/web-extension/tomcat/share-config-custom-template.xml
+ADD tomcat/share-config-custom.xml /opt/alfresco/tomcat/shared/classes/alfresco/web-extension/share-config-custom-template.xml
 ADD scripts/apply.sh /opt/alfresco/addons/apply.sh
 ADD scripts/entrypoint.sh /opt/alfresco/bin/entrypoint.sh
 ADD scripts/limitconvert.sh /opt/alfresco/bin/limitconvert.sh
