@@ -20,6 +20,8 @@ ENV AOS_SERVER_ROOT=https://downloads.loftux.net/public/content/org/alfresco/alf
 ENV AOS_AMP=https://downloads.loftux.net/public/content/org/alfresco/aos-module/alfresco-aos-module/1.1.6/alfresco-aos-module-1.1.6.amp
 ENV TTF_MSCORE_INSTALLER=ttf-mscorefonts-installer_3.6_all.deb
 ENV TTF_MSCORE_INSTALL_URL=http://ftp.de.debian.org/debian/pool/contrib/m/msttcorefonts/$TTF_MSCORE_INSTALLER
+ENV SOLR4_CONFIG_DOWNLOAD=https://downloads.loftux.net/alfresco/alfresco-solr4/LX100/alfresco-solr4-LX100-config-ssl.zip
+ENV SOLR4_WAR_DOWNLOAD=https://downloads.loftux.net/alfresco/alfresco-solr4/LX100/alfresco-solr4-LX100.war
 
 # Create working directories
 RUN mkdir /tmp/alfrescoinstall && \
@@ -31,6 +33,7 @@ RUN mkdir /tmp/alfrescoinstall && \
     mkdir -p /opt/alfresco/modules/platform && \
     mkdir -p /opt/alfresco/modules/share && \
     mkdir -p /opt/alfresco/bin && \
+    mkdir -p /opt/alfresco/solr4 && \
     mkdir -p /opt/alfresco/keystore && \
     mkdir -p /opt/alfresco/logs 
     
@@ -66,14 +69,6 @@ RUN cd /tmp/alfrescoinstall && \
     mkdir -p /opt/alfresco/tomcat/shared/lib && \
     mkdir -p /opt/alfresco/tomcat/endorsed && \
     mkdir -p /opt/alfresco/tomcat/conf/Catalina/localhost
-
-# Copy Tomcat required files 
-ADD tomcat/catalina.properties /opt/alfresco/tomcat/conf/catalina.properties
-ADD tomcat/context.xml /opt/alfresco/tomcat/conf/tomcat/context.xml
-ADD tomcat/server.xml /opt/alfresco/tomcat/conf/tomcat/server.xml
-ADD tomcat/tomcat-users.xml /opt/alfresco/tomcat/conf/tomcat/tomcat-users.xml
-ADD tomcat/alfresco.xml /opt/alfresco/tomcat/conf/Catalina/localhost/alfresco.xml 
-ADD tomcat/share.xml /opt/alfresco/tomcat/conf/Catalina/localhost/share.xml 
 
 # Install MySQL JBDC Connector
 RUN cd /tmp/alfrescoinstall && \
@@ -120,6 +115,29 @@ RUN cd /tmp/alfrescoinstall && \
     mv alfresco-vti-bin-1.1.5.war /opt/alfresco/tomcat/webapps/_vti_bin.war && \
     mv alfresco-server-root-5.2.g.war /opt/alfresco/tomcat/webapps/ROOT.war
 
+
+# Instal SOLR4
+RUN cd /opt/alfresco/solr4 && \
+  curl -# -o /opt/alfresco/tomcat/webapps/solr4.war $SOLR4_WAR_DOWNLOAD && \
+  curl -# -o /opt/alfresco/solr4/solrconfig.zip $SOLR4_CONFIG_DOWNLOAD  && \
+  unzip -q solrconfig.zip && \
+  rm solrconfig.zip
+
+RUN mkdir -p /opt/alfresco/alf_data/solr4 && \
+  mv /opt/alfresco/solr4/workspace-SpacesStore/conf/solrcore.properties /opt/alfresco/solr4/workspace-SpacesStore/conf/solrcore.properties.orig  && \
+  mv /opt/alfresco/solr4/archive-SpacesStore/conf/solrcore.properties /opt/alfresco/solr4/archive-SpacesStore/conf/solrcore.properties.orig && \
+  sed "s/@@ALFRESCO_SOLR4_DATA_DIR@@/\/opt\/alfresco\/alf_data\/solr4/g" /opt/alfresco/solr4/workspace-SpacesStore/conf/solrcore.properties.orig >  /tmp/alfrescoinstall/solrcore.properties && \
+  mv /tmp/alfrescoinstall/solrcore.properties /opt/alfresco/solr4/workspace-SpacesStore/conf/solrcore.properties && \
+  sed "s/@@ALFRESCO_SOLR4_DATA_DIR@@/\/opt\/alfresco\/alf_data\/solr4/g" /opt/alfresco/solr4/archive-SpacesStore/conf/solrcore.properties.orig >  /tmp/alfrescoinstall/solrcore.properties && \
+  mv /tmp/alfrescoinstall/solrcore.properties /opt/alfresco/solr4/archive-SpacesStore/conf/solrcore.properties && \
+  echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>" > /tmp/alfrescoinstall/solr4.xml && \
+  echo "<Context debug=\"0\" crossContext=\"true\">" >> /tmp/alfrescoinstall/solr4.xml && \
+  echo "  <Environment name=\"solr/home\" type=\"java.lang.String\" value=\"/opt/alfresco/solr4\" override=\"true\"/>" >> /tmp/alfrescoinstall/solr4.xml && \
+  echo "  <Environment name=\"solr/model/dir\" type=\"java.lang.String\" value=\"/opt/alfresco/solr4/alfrescoModels\" override=\"true\"/>" >> /tmp/alfrescoinstall/solr4.xml && \
+  echo "  <Environment name=\"solr/content/dir\" type=\"java.lang.String\" value=\"/opt/alfresco/alf_data/solr4/content\" override=\"true\"/>" >> /tmp/alfrescoinstall/solr4.xml && \
+  echo "</Context>" >> /tmp/alfrescoinstall/solr4.xml && \
+  mv /tmp/alfrescoinstall/solr4.xml /opt/alfresco/tomcat/conf/Catalina/localhost/solr4.xml
+
 # Deploy Keystore
 RUN mkdir -p /opt/alfresco/keystore && \
     cd /tmp/alfrescoinstall && \
@@ -131,6 +149,14 @@ RUN mkdir -p /opt/alfresco/keystore && \
     curl -# -o /opt/alfresco/keystore/ssl-truststore-passwords.properties $KEYSTOREBASE/ssl-truststore-passwords.properties  && \
     curl -# -o /opt/alfresco/keystore/ssl.keystore $KEYSTOREBASE/ssl.keystore && \
     curl -# -o /opt/alfresco/keystore/ssl.truststore $KEYSTOREBASE/ssl.truststore
+
+# Copy Tomcat required files 
+ADD tomcat/catalina.properties /opt/alfresco/tomcat/conf/catalina.properties
+ADD tomcat/context.xml /opt/alfresco/tomcat/conf/context.xml
+ADD tomcat/server.xml /opt/alfresco/tomcat/conf/server.xml
+ADD tomcat/tomcat-users.xml /opt/alfresco/tomcat/conf/tomcat-users.xml
+ADD tomcat/alfresco.xml /opt/alfresco/tomcat/conf/Catalina/localhost/alfresco.xml 
+ADD tomcat/share.xml /opt/alfresco/tomcat/conf/Catalina/localhost/share.xml 
 
 # Deploy scripts & fix permissions
 ADD tomcat/alfresco-global.properties /opt/alfresco/tomcat/shared/classes/alfresco-global-template.properties

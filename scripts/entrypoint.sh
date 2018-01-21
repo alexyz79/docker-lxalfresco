@@ -20,6 +20,10 @@ if [[ ! -v LOCALESUPPORT ]]; then
     LOCALESUPPORT='en_US.utf8'
 fi
 
+if [[ ! -v SERVER_MODE ]]; then
+    SERVER_MODE='UNKNOWN'
+fi
+
 if [[ ! -v REPO_HOSTNAME ]]; then
     REPO_HOSTNAME='localhost'
 fi
@@ -62,6 +66,18 @@ fi
 
 if [[ ! -v DB_PORT ]]; then
     DB_PORT=3306
+fi
+
+if [[ ! -v SOLR_HOST ]]; then
+    SOLR_HOST='localhost'
+fi
+
+if [[ ! -v SOLR_PORT ]]; then
+    SOLR_PORT=8080
+fi
+
+if [[ ! -v SOLR_PORT_SSL ]]; then
+    SOLR_PORT_SSL=8443
 fi
 
 if [[ ! -v SMTP_HOST ]]; then
@@ -212,7 +228,7 @@ if [ "$GENERATE_AUTH_SYSTEM" = "true" ]; then
     touch $ALFRESCO_NTLM_FILE
 
     echo "alfresco.authentication.allowGuestLogin=$ALFRESCO_AUTH_ALLOWGUEST" > $ALFRESCO_NTLM_FILE
-    echo "alfresco.authentication.authenticateCIFS=$ALFRESCO_AUTH_CIFS" > $ALFRESCO_NTLM_FILE
+    echo "alfresco.authentication.authenticateCIFS=$ALFRESCO_AUTH_CIFS" >> $ALFRESCO_NTLM_FILE
 
     if [[ ! -v LDAP_ENABLED ]]; then
         LDAP_ENABLED='false'
@@ -320,30 +336,30 @@ if [ "$GENERATE_AUTH_SYSTEM" = "true" ]; then
         fi
         
         echo "ldap.authentication.active=$LDAP_ENABLED" > $LDAP_AUTH_FILE
-        echo "ldap.authentication.allowGuestLogin=$LDAP_AUTH_ALLOWGUEST" > $LDAP_AUTH_FILE
-        echo "ldap.authentication.userNameFormat=$LDAP_USER_FORMAT" > $LDAP_AUTH_FILE
-        echo "ldap.authentication.java.naming.provider.url=ldap://$LDAP_AD_HOST:389/" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.active=$LDAP_SYNC_ENABLED" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.java.naming.security.principal=$LDAP_PRINCIPAL_USER" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.java.naming.security.credentials=$LDAP_PRINCIPAL_PASSWORD" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.groupQuery=$LDAP_GROUP_QUERY" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.groupDifferentialQuery=$LDAP_GROUP_DIFFERENTIAL_QUERY" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.personQuery=$LDAP_PERSON_QUERY" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.personDifferentialQuery=$LDAP_PERSON_DIFERNTIAL_QUERY" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.groupSearchBase=$LDAP_GROUP_SEARCHBASE" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.userSearchBase=$LDAP_USER_SEARCHBASE" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.modifyTimestampAttributeName=$LDAP_MODIFYTS_NAME" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.timestampFormat=$LDAP_MODIFYTS_FORMAT" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.userIdAttributeName=$LDAP_USER_ID_ATTRIB" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.userFirstNameAttributeName=$LDAP_USER_FN_ATTRIB" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.userLastNameAttributeName=$LDAP_USER_LN_ATTRIB" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.userEmailAttributeName=$LDAP_USER_MAIL_ATTRIB" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.userOrganizationalIdAttributeName=$LDAP_ORG_ID_ATTRIB" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.defaultHomeFolderProvider=$LDAP_USER_DEF_HOMEDIR_ATTRIB" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.groupIdAttributeName=$LDAP_GROUP_ID_ATTRIB" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.groupType=$LDAP_GROUP_TYPE" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.personType=$LDAP_PERSON_TYPE" > $LDAP_AUTH_FILE
-        echo "ldap.synchronization.groupMemberAttributeName=$LDAP_GROUP_MEMBER_ATTRIB" > $LDAP_AUTH_FILE
+        echo "ldap.authentication.allowGuestLogin=$LDAP_ALLOWGUEST" >> $LDAP_AUTH_FILE
+        echo "ldap.authentication.userNameFormat=$LDAP_USER_FORMAT" >> $LDAP_AUTH_FILE
+        echo "ldap.authentication.java.naming.provider.url=ldap://$LDAP_HOST:389/" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.active=$LDAP_SYNC_ENABLED" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.java.naming.security.principal=$LDAP_PRINCIPAL_USER" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.java.naming.security.credentials=$LDAP_PRINCIPAL_PASSWORD" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.groupQuery=$LDAP_GROUP_QUERY" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.groupDifferentialQuery=$LDAP_GROUP_DIFFERENTIAL_QUERY" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.personQuery=$LDAP_PERSON_QUERY" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.personDifferentialQuery=$LDAP_PERSON_DIFERNTIAL_QUERY" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.groupSearchBase=$LDAP_GROUP_SEARCHBASE" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.userSearchBase=$LDAP_USER_SEARCHBASE" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.modifyTimestampAttributeName=$LDAP_MODIFYTS_NAME" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.timestampFormat=$LDAP_MODIFYTS_FORMAT" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.userIdAttributeName=$LDAP_USER_ID_ATTRIB" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.userFirstNameAttributeName=$LDAP_USER_FN_ATTRIB" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.userLastNameAttributeName=$LDAP_USER_LN_ATTRIB" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.userEmailAttributeName=$LDAP_USER_MAIL_ATTRIB" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.userOrganizationalIdAttributeName=$LDAP_ORG_ID_ATTRIB" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.defaultHomeFolderProvider=$LDAP_USER_DEF_HOMEDIR_ATTRIB" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.groupIdAttributeName=$LDAP_GROUP_ID_ATTRIB" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.groupType=$LDAP_GROUP_TYPE" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.personType=$LDAP_PERSON_TYPE" >> $LDAP_AUTH_FILE
+        echo "ldap.synchronization.groupMemberAttributeName=$LDAP_GROUP_MEMBER_ATTRIB" >> $LDAP_AUTH_FILE
     else
         sed -i "s/@@LDAP_AUTH_SYSTEM@@/ /g" $ALFRESCO_GLOBAL_PROPERTIES
     fi
@@ -352,6 +368,7 @@ fi
 locale-gen $LOCALESUPPORT
 $ALF_HOME/addons/apply.sh all
 
+sed -i "s/@@SERVER_MODE@@/$SERVER_MODE/g" $ALFRESCO_GLOBAL_PROPERTIES
 sed -i "s/@@DB_USERNAME@@/$DB_USERNAME/g" $ALFRESCO_GLOBAL_PROPERTIES
 sed -i "s/@@DB_PASSWORD@@/$DB_PASSWORD/g" $ALFRESCO_GLOBAL_PROPERTIES
 sed -i "s/@@DB_NAME@@/$DB_NAME/g" $ALFRESCO_GLOBAL_PROPERTIES
@@ -364,6 +381,9 @@ sed -i "s/@@ALFRESCO_SHARE_SERVER@@/$SHARE_HOSTNAME/g" $ALFRESCO_GLOBAL_PROPERTI
 sed -i "s/@@ALFRESCO_SHARE_SERVER_PORT@@/$SHARE_PORT/g" $ALFRESCO_GLOBAL_PROPERTIES
 sed -i "s/@@ALFRESCO_SHARE_SERVER_PROTOCOL@@/$SHARE_PROTOCOL/g" $ALFRESCO_GLOBAL_PROPERTIES
 sed -i "s/@@SMART_FOLDER_ENABLED@@/$SMART_FOLDER_ENABLED/g" $ALFRESCO_GLOBAL_PROPERTIES
+sed -i "s/@@SOLR_HOST@@/$SOLR_HOST/g" $ALFRESCO_GLOBAL_PROPERTIES
+sed -i "s/@@SOLR_PORT@@/$SOLR_PORT/g" $ALFRESCO_GLOBAL_PROPERTIES
+sed -i "s/@@SOLR_PORT_SSL@@/$SOLR_PORT_SSL/g" $ALFRESCO_GLOBAL_PROPERTIES
 sed -i "s/@@SMTP_HOST@@/$SMTP_HOST/g" $ALFRESCO_GLOBAL_PROPERTIES
 sed -i "s/@@SMTP_PORT@@/$SMTP_PORT/g" $ALFRESCO_GLOBAL_PROPERTIES
 sed -i "s/@@SMTP_USERNAME@@/$SMTP_USERNAME/g" $ALFRESCO_GLOBAL_PROPERTIES
